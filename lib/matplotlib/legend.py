@@ -172,6 +172,14 @@ fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
     absolute font size in points. String values are relative to the current
     default font size. This argument is only used if *prop* is not specified.
 
+textcolor : str or list
+    Sets the color of the text in the legend. Can be a valid color string
+    (for example, `'red'`), or a list of color strings. The textcolor can
+    also be made to match the color of the line or marker using the following:
+    line color (`'linecolor'`),
+    marker face color (`'markerfacecolor'` or `'mfc'`)
+    marker edge color (`'markeredgecolor'` or `'mec'`)
+
 numpoints : int, default: :rc:`legend.numpoints`
     The number of marker points in the legend when creating a legend
     entry for a `.Line2D` (line).
@@ -293,7 +301,8 @@ class Legend(Artist):
                  scatterpoints=None,    # number of scatter points
                  scatteryoffsets=None,
                  prop=None,          # properties for the legend texts
-                 fontsize=None,        # keyword to set font size directly
+                 fontsize=None,      # keyword to set font size directly
+                 textcolor=None,     # keyword to set the text color
 
                  # spacing & pad defined as a fraction of the font-size
                  borderpad=None,      # the whitespace inside the legend border
@@ -518,6 +527,28 @@ class Legend(Artist):
         tprop = FontProperties(size=title_fontsize)
         self.set_title(title, prop=tprop)
         self._draggable = None
+
+        # set the text color
+        if textcolor is None:
+            pass
+        elif textcolor == 'linecolor':
+            for line, text in zip(self.get_lines(), self.get_texts()):
+                text.set_color(line.get_color())
+        elif textcolor == 'markerfacecolor' or textcolor == 'mfc':
+            for line, text in zip(self.get_lines(), self.get_texts()):
+                text.set_color(line.get_markerfacecolor())
+        elif textcolor == 'markeredgecolor' or textcolor == 'mec':
+            for line, text in zip(self.get_lines(), self.get_texts()):
+                text.set_color(line.get_markeredgecolor())
+        elif type(textcolor) in [list, tuple]:
+            for color, text in zip(textcolor, self.get_texts()):
+                text.set_color(color)
+        elif type(textcolor) is str:
+            for text in self.get_texts():
+                text.set_color(textcolor)
+        else:
+            raise ValueError("Invalid argument for textcolor : %s" %
+                             str(textcolor))
 
     def _set_artist_props(self, a):
         """

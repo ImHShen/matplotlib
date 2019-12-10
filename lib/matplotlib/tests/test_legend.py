@@ -527,6 +527,42 @@ def test_legend_title_fontsize():
     assert leg.get_title().get_fontsize() == 22
 
 
+def test_legend_textcolor_single():
+    # test textcolor for a single color
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3')
+
+    leg = ax.legend(textcolor='red')
+    for text in leg.get_texts():
+        assert text.get_color() == 'red'
+
+
+def test_legend_textcolor_list():
+    # test textcolor for a list of colors
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3')
+
+    leg = ax.legend(textcolor=['r', 'g', 'b'])
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert text.get_color() == color
+
+
+def test_legend_textcolor_linecolor():
+    # test the textcolor for textcolor='linecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', color='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', color='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', color='b')
+
+    leg = ax.legend(textcolor='linecolor')
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert text.get_color() == color
+
+
 def test_get_set_draggable():
     legend = plt.legend()
     assert not legend.get_draggable()
