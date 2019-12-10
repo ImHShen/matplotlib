@@ -532,19 +532,35 @@ class Legend(Artist):
         if textcolor is None:
             pass
         elif textcolor == 'linecolor':
-            for line, text in zip(self.get_lines(), self.get_texts()):
-                text.set_color(line.get_color())
+            for handle, text in zip(self.legendHandles, self.texts):
+                if isinstance(handle, Line2D):
+                    text.set_color(handle.get_color())
+                else:
+                    text.set_color(handle.get_facecolor())
         elif textcolor == 'markerfacecolor' or textcolor == 'mfc':
-            for line, text in zip(self.get_lines(), self.get_texts()):
-                text.set_color(line.get_markerfacecolor())
+            for handle, text in zip(self.legendHandles, self.texts):
+                if isinstance(handle, Line2D):
+                    text.set_color(handle.get_markerfacecolor())
+                else:
+                    text.set_color(handle.get_facecolor())
         elif textcolor == 'markeredgecolor' or textcolor == 'mec':
-            for line, text in zip(self.get_lines(), self.get_texts()):
-                text.set_color(line.get_markeredgecolor())
-        elif type(textcolor) in [list, tuple]:
-            for color, text in zip(textcolor, self.get_texts()):
+            for handle, text in zip(self.legendHandles, self.texts):
+                if isinstance(handle, Line2D):
+                    text.set_color(handle.get_markeredgecolor())
+                else:
+                    text.set_color(handle.get_edgecolor())
+        # Next, check if we have a list/tuple of colors,
+        # but ensure that it's not a RGBA tuple
+        elif (type(textcolor) in [list, tuple]
+              and not type(textcolor[0]) in [int, float]):
+            for color, text in zip(textcolor, self.texts):
                 text.set_color(color)
-        elif type(textcolor) is str:
-            for text in self.get_texts():
+        # Now, we have a single color...
+        elif (type(textcolor) is str or          # either a string
+              (type(textcolor) in [list, tuple]  # or RGB(A) tuple
+               and all(isinstance(x, (int, float)) for x in textcolor)
+               and (len(textcolor) > 2 and len(textcolor) < 5))):
+            for text in self.texts:
                 text.set_color(textcolor)
         else:
             raise ValueError("Invalid argument for textcolor : %s" %
