@@ -531,37 +531,45 @@ class Legend(Artist):
         # set the text color
         if textcolor is None:
             pass
-        elif textcolor == 'linecolor':
-            for handle, text in zip(self.legendHandles, self.texts):
-                if isinstance(handle, Line2D):
-                    text.set_color(handle.get_color())
-                else:
-                    text.set_color(handle.get_facecolor())
-        elif textcolor == 'markerfacecolor' or textcolor == 'mfc':
-            for handle, text in zip(self.legendHandles, self.texts):
-                if isinstance(handle, Line2D):
-                    text.set_color(handle.get_markerfacecolor())
-                else:
-                    text.set_color(handle.get_facecolor())
-        elif textcolor == 'markeredgecolor' or textcolor == 'mec':
-            for handle, text in zip(self.legendHandles, self.texts):
-                if isinstance(handle, Line2D):
-                    text.set_color(handle.get_markeredgecolor())
-                else:
-                    text.set_color(handle.get_edgecolor())
-        # Next, check if we have a list/tuple of colors,
-        # but ensure that it's not a RGBA tuple
-        elif (type(textcolor) in [list, tuple]
-              and not type(textcolor[0]) in [int, float]):
-            for color, text in zip(textcolor, self.texts):
-                text.set_color(color)
-        # Now, we have a single color...
-        elif (type(textcolor) is str or          # either a string
-              (type(textcolor) in [list, tuple]  # or RGB(A) tuple
-               and all(isinstance(x, (int, float)) for x in textcolor)
-               and (len(textcolor) > 2 and len(textcolor) < 5))):
-            for text in self.texts:
-                text.set_color(textcolor)
+            
+        elif type(textcolor) is str:
+            if textcolor == 'linecolor':
+                for handle, text in zip(self.legendHandles, self.texts):
+                    if isinstance(handle, Line2D):
+                        text.set_color(handle.get_color())
+                    else:
+                        text.set_color(handle.get_facecolor())
+            elif textcolor == 'markerfacecolor' or textcolor == 'mfc':
+                for handle, text in zip(self.legendHandles, self.texts):
+                    if isinstance(handle, Line2D):
+                        text.set_color(handle.get_markerfacecolor())
+                    else:
+                        text.set_color(handle.get_facecolor())
+            elif textcolor == 'markeredgecolor' or textcolor == 'mec':
+                for handle, text in zip(self.legendHandles, self.texts):
+                    if isinstance(handle, Line2D):
+                        text.set_color(handle.get_markeredgecolor())
+                    else:
+                        text.set_color(handle.get_edgecolor())
+            # Now, we have a single color...
+            else: 
+                for text in self.texts:
+                    text.set_color(textcolor)
+        
+        elif type(textcolor) in [list, tuple, np.ndarray]:
+            # check for RGB(A) list/tuple/np.ndarray
+            if (all(np.isreal(x) for x in textcolor) and 
+                np.array(textcolor).size > 2 and np.array(textcolor).size < 5):
+                for text in self.texts:
+                    text.set_color(textcolor)
+            # We likely have a list/tuple/ndarray of colors
+            # Check if all are strings or all are RGB(A) tuples
+            else:
+                if all(isinstance(element,str) or (all(np.isreal(y) for y in element) and
+                    np.array(element).size > 2 and np.array(element).size < 5) for element in textcolor):
+                    for color, text in zip(textcolor, self.texts):
+                        text.set_color(color)
+                    
         else:
             raise ValueError("Invalid argument for textcolor : %s" %
                              str(textcolor))
