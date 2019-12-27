@@ -23,11 +23,11 @@ information.
 
 import logging
 import time
-
+import itertools
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, docstring
+from matplotlib import cbook, docstring, colors
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
@@ -174,11 +174,11 @@ fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
 
 textcolor : str or list
     Sets the color of the text in the legend. Can be a valid color string
-    (for example, `'red'`), or a list of color strings. The textcolor can
+    (for example, 'red'), or a list of color strings. The textcolor can
     also be made to match the color of the line or marker using the following:
-    line color (`'linecolor'`),
-    marker face color (`'markerfacecolor'` or `'mfc'`)
-    marker edge color (`'markeredgecolor'` or `'mec'`)
+    line color ('linecolor'),
+    marker face color ('markerfacecolor' or 'mfc')
+    marker edge color ('markeredgecolor' or 'mec')
 
 numpoints : int, default: :rc:`legend.numpoints`
     The number of marker points in the legend when creating a legend
@@ -529,47 +529,31 @@ class Legend(Artist):
         self._draggable = None
 
         # set the text color
+
+        color_getters = {  # getter function depends on line or patch
+            'linecolor':       ['get_color', 'get_facecolor'],
+            'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
+            'mfc':             ['get_markerfacecolor', 'get_facecolor'],
+            'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
+            'mec':             ['get_markerfacecolor', 'get_facecolor'],
+        }
         if textcolor is None:
             pass
-            
-        elif type(textcolor) is str:
-            if textcolor == 'linecolor':
-                for handle, text in zip(self.legendHandles, self.texts):
-                    if isinstance(handle, Line2D):
-                        text.set_color(handle.get_color())
-                    else:
-                        text.set_color(handle.get_facecolor())
-            elif textcolor == 'markerfacecolor' or textcolor == 'mfc':
-                for handle, text in zip(self.legendHandles, self.texts):
-                    if isinstance(handle, Line2D):
-                        text.set_color(handle.get_markerfacecolor())
-                    else:
-                        text.set_color(handle.get_facecolor())
-            elif textcolor == 'markeredgecolor' or textcolor == 'mec':
-                for handle, text in zip(self.legendHandles, self.texts):
-                    if isinstance(handle, Line2D):
-                        text.set_color(handle.get_markeredgecolor())
-                    else:
-                        text.set_color(handle.get_edgecolor())
-            # Now, we have a single color...
-            else: 
-                for text in self.texts:
-                    text.set_color(textcolor)
-        
-        elif type(textcolor) in [list, tuple, np.ndarray]:
-            # check for RGB(A) list/tuple/np.ndarray
-            if (all(np.isreal(x) for x in textcolor) and 
-                np.array(textcolor).size > 2 and np.array(textcolor).size < 5):
-                for text in self.texts:
-                    text.set_color(textcolor)
-            # We likely have a list/tuple/ndarray of colors
-            # Check if all are strings or all are RGB(A) tuples
-            else:
-                if all(isinstance(element,str) or (all(np.isreal(y) for y in element) and
-                    np.array(element).size > 2 and np.array(element).size < 5) for element in textcolor):
-                    for color, text in zip(textcolor, self.texts):
+        elif type(textcolor) is str and textcolor in color_getters:
+            getter_names = color_getters[textcolor]
+            for handle, text in zip(self.legendHandles, self.texts):
+                for getter_name in getter_names:
+                    try:
+                        color = getattr(handle, getter_name)()
                         text.set_color(color)
-                    
+                        break
+                    except AttributeError:
+                        pass
+        elif type(textcolor) in [list, tuple, np.ndarray, str]:
+            for text, color in zip(self.texts,
+                                   itertools.cycle(
+                                       colors.to_rgba_array(textcolor))):
+                text.set_color(color)
         else:
             raise ValueError("Invalid argument for textcolor : %s" %
                              str(textcolor))

@@ -536,7 +536,7 @@ def test_legend_textcolor_single():
 
     leg = ax.legend(textcolor='red')
     for text in leg.get_texts():
-        assert text.get_color() == 'red'
+        assert (text.get_color() == mpl.colors.to_rgba_array('red')).all
 
 
 def test_legend_textcolor_list():
@@ -548,7 +548,7 @@ def test_legend_textcolor_list():
 
     leg = ax.legend(textcolor=['r', 'g', 'b'])
     for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
-        assert text.get_color() == color
+        assert (text.get_color() == mpl.colors.to_rgba_array(color)).all
 
 
 def test_legend_textcolor_linecolor():
