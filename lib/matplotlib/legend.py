@@ -539,7 +539,7 @@ class Legend(Artist):
         }
         if textcolor is None:
             pass
-        elif type(textcolor) is str and textcolor in color_getters:
+        elif isinstance(textcolor, str) and textcolor in color_getters:
             getter_names = color_getters[textcolor]
             for handle, text in zip(self.legendHandles, self.texts):
                 for getter_name in getter_names:
@@ -549,7 +549,7 @@ class Legend(Artist):
                         break
                     except AttributeError:
                         pass
-        elif type(textcolor) in [list, tuple, np.ndarray, str]:
+        elif np.iterable(textcolor):
             for text, color in zip(self.texts,
                                    itertools.cycle(
                                        colors.to_rgba_array(textcolor))):
