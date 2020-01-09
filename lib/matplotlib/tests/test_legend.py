@@ -536,7 +536,7 @@ def test_legend_textcolor_single():
 
     leg = ax.legend(textcolor='red')
     for text in leg.get_texts():
-        assert (text.get_color() == mpl.colors.to_rgba_array('red')).all
+        assert mpl.colors.same_color(text.get_color(), 'red')
 
 
 def test_legend_textcolor_list():
@@ -548,7 +548,7 @@ def test_legend_textcolor_list():
 
     leg = ax.legend(textcolor=['r', 'g', 'b'])
     for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
-        assert (text.get_color() == mpl.colors.to_rgba_array(color)).all
+        assert mpl.colors.same_color(text.get_color(), color)
 
 
 def test_legend_textcolor_linecolor():
@@ -559,6 +559,30 @@ def test_legend_textcolor_linecolor():
     ax.plot(np.arange(10), np.arange(10)*3, label='#3', color='b')
 
     leg = ax.legend(textcolor='linecolor')
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert text.get_color() == color
+
+
+def test_legend_textcolor_markeredgecolor():
+    # test the textcolor for textcolor='markeredgecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', markeredgecolor='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', markeredgecolor='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', markeredgecolor='b')
+
+    leg = ax.legend(textcolor='markeredgecolor')
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert text.get_color() == color
+
+
+def test_legend_textcolor_markerfacecolor():
+    # test the textcolor for textcolor='markerfacecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', markerfacecolor='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', markerfacecolor='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', markerfacecolor='b')
+
+    leg = ax.legend(textcolor='markerfacecolor')
     for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
         assert text.get_color() == color
 

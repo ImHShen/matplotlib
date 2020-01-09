@@ -21,9 +21,10 @@ See the :doc:`legend guide </tutorials/intermediate/legend_guide>` for more
 information.
 """
 
+import itertools
 import logging
 import time
-import itertools
+
 import numpy as np
 
 import matplotlib as mpl
@@ -175,10 +176,8 @@ fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
 textcolor : str or list
     Sets the color of the text in the legend. Can be a valid color string
     (for example, 'red'), or a list of color strings. The textcolor can
-    also be made to match the color of the line or marker using the following:
-    line color ('linecolor'),
-    marker face color ('markerfacecolor' or 'mfc')
-    marker edge color ('markeredgecolor' or 'mec')
+    also be made to match the color of the line or marker using 'linecolor', 
+    'markerfacecolor' (or 'mfc'), or 'markeredgecolor' (or 'mec').
 
 numpoints : int, default: :rc:`legend.numpoints`
     The number of marker points in the legend when creating a legend
@@ -531,11 +530,11 @@ class Legend(Artist):
         # set the text color
 
         color_getters = {  # getter function depends on line or patch
-            'linecolor':       ['get_color', 'get_facecolor'],
+            'linecolor':       ['get_color',           'get_facecolor'],
             'markerfacecolor': ['get_markerfacecolor', 'get_facecolor'],
             'mfc':             ['get_markerfacecolor', 'get_facecolor'],
             'markeredgecolor': ['get_markeredgecolor', 'get_edgecolor'],
-            'mec':             ['get_markerfacecolor', 'get_facecolor'],
+            'mec':             ['get_markeredgecolor', 'get_edgecolor'],
         }
         if textcolor is None:
             pass
