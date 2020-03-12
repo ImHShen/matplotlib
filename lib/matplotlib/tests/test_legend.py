@@ -560,7 +560,7 @@ def test_legend_textcolor_linecolor():
 
     leg = ax.legend(textcolor='linecolor')
     for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
-        assert text.get_color() == color
+        assert mpl.colors.same_color(text.get_color(), color)
 
 
 def test_legend_textcolor_markeredgecolor():
@@ -572,7 +572,7 @@ def test_legend_textcolor_markeredgecolor():
 
     leg = ax.legend(textcolor='markeredgecolor')
     for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
-        assert text.get_color() == color
+        assert mpl.colors.same_color(text.get_color(), color)
 
 
 def test_legend_textcolor_markerfacecolor():
@@ -584,7 +584,7 @@ def test_legend_textcolor_markerfacecolor():
 
     leg = ax.legend(textcolor='markerfacecolor')
     for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
-        assert text.get_color() == color
+        assert mpl.colors.same_color(text.get_color(), color)
 
 
 def test_get_set_draggable():
